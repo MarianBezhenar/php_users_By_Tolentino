@@ -1,4 +1,6 @@
--- Tabella users
+-- ============================================
+-- TABELLA users
+-- ============================================
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     nickname VARCHAR(200) UNIQUE NOT NULL,
@@ -6,23 +8,35 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(200) NOT NULL
 );
 
--- Tabella prodotti
+-- ============================================
+-- TABELLA prodotti
+-- ============================================
 CREATE TABLE IF NOT EXISTS prodotti (
     id_prodotto VARCHAR(9) PRIMARY KEY,
     tipo VARCHAR(200) NOT NULL,
     data_produzione DATE NOT NULL
 );
 
--- Tabella assegnazioni (con supporto a NULL per id_prodotto)
+-- ============================================
+-- TABELLA assegnazioni (collegamento user → prodotto)
+-- ============================================
 CREATE TABLE IF NOT EXISTS assegnazioni (
     id SERIAL PRIMARY KEY,
-    nickname VARCHAR(200) NOT NULL,
+    user_id INTEGER NOT NULL,
     id_prodotto VARCHAR(9),
-    CONSTRAINT fk_user FOREIGN KEY (nickname) REFERENCES users(nickname) ON DELETE CASCADE,
-    CONSTRAINT fk_prodotto FOREIGN KEY (id_prodotto) REFERENCES prodotti(id_prodotto) ON DELETE CASCADE
+    CONSTRAINT fk_assegnazioni_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_assegnazioni_prodotto
+        FOREIGN KEY (id_prodotto)
+        REFERENCES prodotti(id_prodotto)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
--- Indice unico per evitare duplicati (solo quando id_prodotto non è NULL)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_assegnazioni_unique 
-ON assegnazioni (nickname, id_prodotto) 
+-- Indice unico condizionale: evita duplicati (user_id, id_prodotto) solo se id_prodotto non è NULL
+CREATE UNIQUE INDEX IF NOT EXISTS idx_assegnazioni_unique
+ON assegnazioni (user_id, id_prodotto)
 WHERE id_prodotto IS NOT NULL;
