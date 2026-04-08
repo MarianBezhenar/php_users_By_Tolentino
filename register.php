@@ -13,7 +13,7 @@ if (empty($nickname) || empty($email) || empty($password_raw)) {
     die("Campi mancanti");
 }
 
-$password = password_hash($password_raw, PASSWORD_DEFAULT);
+$password = password_hash($password_raw, PASSWORD_BCRYPT);
 
 $query = "INSERT INTO users (nickname, email, password)
           VALUES ($1, $2, $3)";

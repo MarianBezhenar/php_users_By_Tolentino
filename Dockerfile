@@ -1,18 +1,20 @@
 FROM php:8.2-apache
 
+# --- FASE DI BUILD (invariata) ---
 RUN apt-get update && apt-get install -y \
     libpq-dev \
-    postgresql-client \
     && docker-php-ext-install pgsql pdo_pgsql \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . /var/www/html/
 
-# Script di avvio che esegue schema.sql una volta
-RUN echo '#!/bin/bash\n\
-if [ -f /var/www/html/schema.sql ]; then\n\
-    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f /var/www/html/schema.sql 2>/dev/null\n\
-fi\n\
-exec apache2-foreground' > /start.sh && chmod +x /start.sh
-
-CMD ["/start.sh"]
+# --- FASE DI AVVIO (la novità) ---
+CMD ["bash", "-lc", "\
+    set -eux; \
+    a2dismod mpm_event mpm_worker || true; \
+    rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true; \
+    a2enmod mpm_prefork; \
+    apache2ctl -t; \
+    exec apache2-foreground \
+"]
