@@ -6,13 +6,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 🔥 Rimuove TUTTI i moduli MPM e riabilita solo prefork
-RUN a2dismod mpm_event mpm_worker mpm_prefork || true && \
+# Forza la rimozione di qualsiasi MPM tranne prefork
+RUN rm -f /etc/apache2/mods-available/mpm_event.* \
+        /etc/apache2/mods-enabled/mpm_event.* \
+        /etc/apache2/mods-available/mpm_worker.* \
+        /etc/apache2/mods-enabled/mpm_worker.* && \
     a2enmod mpm_prefork
-
-# Alternativa più aggressiva (se sopra non basta):
-# RUN rm -f /etc/apache2/mods-enabled/mpm_*.load && \
-#     a2enmod mpm_prefork
 
 COPY . /var/www/html/
 
