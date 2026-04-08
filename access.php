@@ -36,13 +36,13 @@ if (pg_num_rows($result) === 1) {
     $hash = $row["password"];
 
     if (password_verify($password, $hash)) {
-        echo "Login riuscito";
+        echo "Login riuscito  da Tolentino";
     } else {
-        echo "Password errata";
+        echo "Password errata da Tolentino";
     }
 
 } else {
-    echo "Utente non trovato";
+    echo "Utente non trovato da Tolentino";
 }
 
 pg_close($conn);
