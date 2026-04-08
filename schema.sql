@@ -29,3 +29,5 @@ CREATE TABLE assegnazioni (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+--do 
